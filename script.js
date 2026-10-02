@@ -199,7 +199,7 @@ const MN=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','Se
 const cmp=v=>v>=1000?Math.round(v):+v.toFixed(1);
 function mchart(P,m,y){
   const dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
-  if(!P.length)return `<div class="card"><h2>${tkp()}${MN[m]} ${y}</h2><small>Tidak ada data</small></div>`;
+  if(!P.length)return `<div class="card"><h2>${MN[m]} ${y}</h2><small>Tidak ada data</small></div>`;
   const W=300,H=172,pl=46,pr=10,pt=14,pb=34,cs=P.map(p=>p.c);
   const hs=P.map(p=>isFinite(p.h)?p.h:p.c),ls=P.map(p=>isFinite(p.l)?p.l:p.c);
   const hi=Math.max(...hs),lo=Math.min(...ls);
@@ -217,9 +217,9 @@ function mchart(P,m,y){
   const hyT=hy<pt+18?hy+15:Math.max(pt+10,hy-8);
   const lyT=ly>H-pb-18?ly-9:Math.min(H-pb+2,ly+15);
   const halo='paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-linejoin:round';
-  const hl=`<text x="${hx.toFixed(1)}" y="${hyT.toFixed(1)}" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--up)" style="${halo}">H: ${fmt(hi)}</text><text x="${lx.toFixed(1)}" y="${lyT.toFixed(1)}" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--dn)" style="${halo}">L: ${fmt(lo)}</text>`;
+  const hl=`<text x="${hx.toFixed(1)}" y="${hyT.toFixed(1)}" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--up)" style="${halo}">${fmt(hi)}</text><text x="${lx.toFixed(1)}" y="${lyT.toFixed(1)}" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--dn)" style="${halo}">${fmt(lo)}</text>`;
   const marks=`<circle cx="${hx}" cy="${hy}" r="4" fill="var(--up)" stroke="var(--card)" stroke-width="1.5"/><circle cx="${lx}" cy="${ly}" r="4" fill="var(--dn)" stroke="var(--card)" stroke-width="1.5"/>${hl}`;
-  return `<div class="card mc" data-m="${m}" title="Klik untuk detail"><h2>${tkp()}${MN[m]} ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2><div style="display:flex;gap:8px;font-size:12px;margin:0 0 4px"><span class="up">Highest: <b>${fmt(hi)}</b> <small>(${hiP.d} ${mo3})</small></span><span style="color:var(--mut)">·</span><span class="dn">Lowest: <b>${fmt(lo)}</b> <small>(${loP.d} ${mo3})</small></span></div><svg class="mch" data-m="${m}" data-w="${W}" data-pts="${P.map(p=>X(p.d).toFixed(1)+','+Y(p.c).toFixed(1)).join(';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Harga ${MN[m]} ${y}">${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8"/>${dots}${marks}<line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="3 3" visibility="hidden"/><circle class="xc" r="5" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg></div>`;
+  return `<div class="card mc" data-m="${m}" title="Klik untuk detail"><h2>${MN[m]} ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2><div style="display:flex;gap:8px;font-size:12px;margin:0 0 4px"><span class="up">Highest: <b>${fmt(hi)}</b> <small>(${hiP.d} ${mo3})</small></span><span style="color:var(--mut)">·</span><span class="dn">Lowest: <b>${fmt(lo)}</b> <small>(${loP.d} ${mo3})</small></span></div><svg class="mch" data-m="${m}" data-w="${W}" data-pts="${P.map(p=>X(p.d).toFixed(1)+','+Y(p.c).toFixed(1)).join(';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Harga ${MN[m]} ${y}">${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8"/>${dots}${marks}<line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="3 3" visibility="hidden"/><circle class="xc" r="5" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg></div>`;
 }
 function ychart(YD,y){
   if(!YD.length)return '';
@@ -243,15 +243,15 @@ function ychart(YD,y){
   <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:0 0 6px"><span class="up">Highest price: <b>${fmt(hi)}</b> <small>(${YD[hiI].d} ${MN[YD[hiI].m].slice(0,3)})</small></span><span class="dn">Lowest price: <b>${fmt(lo)}</b> <small>(${YD[loI].d} ${MN[YD[loI].m].slice(0,3)})</small></span><span style="color:var(--mut)">${fmt(a)} → ${fmt(b)} · ${N} hari bursa</span></div>
   <p class="msg" style="margin:0 0 6px">Arahkan kursor / sentuh garis untuk melihat harga per hari.</p>
   <svg class="ych" data-w="${W}" data-pts="${pts.replaceAll(' ',';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik harga setahun ${y}"><title>Harga ${y}</title>${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2"/>
-  <circle cx="${hx}" cy="${hy}" r="6" fill="var(--up)" stroke="var(--card)" stroke-width="2"/><text x="${hx}" y="${hyT}" font-size="13" font-weight="bold" text-anchor="middle" fill="var(--up)" style="${halo}">H: ${fmt(hi)}</text>
-  <circle cx="${lx}" cy="${ly}" r="6" fill="var(--dn)" stroke="var(--card)" stroke-width="2"/><text x="${lx}" y="${lyT}" font-size="13" font-weight="bold" text-anchor="middle" fill="var(--dn)" style="${halo}">L: ${fmt(lo)}</text><line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="4 3" visibility="hidden"/><circle class="xc" r="6" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
+  <circle cx="${hx}" cy="${hy}" r="6" fill="var(--up)" stroke="var(--card)" stroke-width="2"/><text x="${hx}" y="${hyT}" font-size="13" font-weight="bold" text-anchor="middle" fill="var(--up)" style="${halo}">${fmt(hi)}</text>
+  <circle cx="${lx}" cy="${ly}" r="6" fill="var(--dn)" stroke="var(--card)" stroke-width="2"/><text x="${lx}" y="${lyT}" font-size="13" font-weight="bold" text-anchor="middle" fill="var(--dn)" style="${halo}">${fmt(lo)}</text><line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="4 3" visibility="hidden"/><circle class="xc" r="6" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
   <small>Garis ${up?'naik (hijau)':'turun (merah)'} = harga penutupan harian Jan–Des ${y}. Titik hijau = highest price setahun, titik merah = lowest price setahun.</small></div>`;
 }
 function trend(){
   const D=S.D,y=+$('#yr').value,M=Array.from({length:12},()=>[]);
   D.t.forEach((t,i)=>{const d=new Date(t);if(d.getUTCFullYear()===y)M[d.getUTCMonth()].push({d:d.getUTCDate(),c:D.c[i],h:D.h[i],l:D.l[i],v:D.v[i],pc:i?(D.c[i]/D.c[i-1]-1)*100:NaN})});
   const YD=[];D.t.forEach((t,i)=>{const d=new Date(t);if(d.getUTCFullYear()===y)YD.push({d:d.getUTCDate(),m:d.getUTCMonth(),c:D.c[i],h:D.h[i],l:D.l[i]})});
-  const all=M.flat();let h=`<h2 style="font-size:19px;margin:4px 0 10px">${tkp()}Tren harga ${y}</h2>`;
+  const all=M.flat();let h=`<h2 style="font-size:22px;margin:4px 0 10px">${tkp()}Tren harga ${y}</h2>`;
   if(all.length){const a=all[0].c,b=all[all.length-1].c,ch=(b/a-1)*100;
     const yhi=Math.max(...YD.map(x=>x.h)),ylo=Math.min(...YD.map(x=>x.l));
     const yhiP=YD.find(x=>x.h===yhi),yloP=YD.find(x=>x.l===ylo);
