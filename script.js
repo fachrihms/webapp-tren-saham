@@ -200,24 +200,61 @@ const cmp=v=>v>=1000?Math.round(v):+v.toFixed(1);
 function mchart(P,m,y){
   const dim=new Date(Date.UTC(y,m+1,0)).getUTCDate();
   if(!P.length)return `<div class="card"><h2>${tkp()}${MN[m]} ${y}</h2><small>Tidak ada data</small></div>`;
-  const W=300,H=160,pl=46,pr=10,pt=10,pb=22,cs=P.map(p=>p.c);
-  let mn=Math.min(...cs),mx=Math.max(...cs);const pd=(mx-mn)*.1||mx*.01||1;mn-=pd;mx+=pd;
-  const X=d=>pl+(d-1)/(dim-1)*(W-pl-pr),Y=v=>pt+(1-(v-mn)/(mx-mn))*(H-pt-pb);
+  const W=300,H=172,pl=46,pr=10,pt=14,pb=34,cs=P.map(p=>p.c);
+  const hs=P.map(p=>isFinite(p.h)?p.h:p.c),ls=P.map(p=>isFinite(p.l)?p.l:p.c);
+  const hi=Math.max(...hs),lo=Math.min(...ls);
+  const hiP=P[hs.indexOf(hi)],loP=P[ls.indexOf(lo)];
+  let mn=Math.min(...cs,lo),mx=Math.max(...cs,hi);const pd=(mx-mn)*.12||mx*.01||1;mn-=pd;mx+=pd;
+  const X=d=>pl+(d-1)/Math.max(1,(dim-1))*(W-pl-pr),Y=v=>pt+(1-(v-mn)/(mx-mn))*(H-pt-pb);
   const up=P[P.length-1].c>=P[0].c,col=up?'var(--up)':'var(--dn)',ch=(P[P.length-1].c/P[0].c-1)*100;
   let g='';
   for(let k=0;k<=2;k++){const v=mn+(mx-mn)*k/2,yy=Y(v);g+=`<line x1="${pl}" x2="${W-pr}" y1="${yy}" y2="${yy}" stroke="var(--bd)"/><text x="${pl-4}" y="${yy+4}" font-size="10" text-anchor="end" fill="var(--mut)">${fmt(cmp(v))}</text>`}
   [1,8,15,22,dim].forEach(d=>g+=`<text x="${X(d)}" y="${H-6}" font-size="10" text-anchor="middle" fill="var(--mut)">${d}</text>`);
   const pts=P.map(p=>X(p.d)+','+Y(p.c)).join(' ');
   const dots=P.map(p=>`<circle cx="${X(p.d)}" cy="${Y(p.c)}" r="2.6" fill="${col}"></circle>`).join('');
-  return `<div class="card mc" data-m="${m}" title="Klik untuk detail"><h2>${tkp()}${MN[m]} ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2><svg class="mch" data-m="${m}" data-pts="${P.map(p=>X(p.d).toFixed(1)+','+Y(p.c).toFixed(1)).join(';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Harga ${MN[m]} ${y}">${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8"/>${dots}<line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="3 3" visibility="hidden"/><circle class="xc" r="5" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg></div>`;
+  const mo3=MN[m].slice(0,3);
+  const hx=X(hiP.d),hy=Y(Math.min(Math.max(hiP.h,mn),mx)),lx=X(loP.d),ly=Y(Math.min(Math.max(loP.l,mn),mx));
+  const hxA=hx>(pl+W-pr)/2?'end':'start',lxA=lx>(pl+W-pr)/2?'end':'start';
+  const hxO=hxA==='end'?-7:7,lxO=lxA==='end'?-7:7;
+  const hl=`<text x="${(hx+hxO).toFixed(1)}" y="${Math.max(pt+9,hy-6).toFixed(1)}" font-size="10" font-weight="bold" text-anchor="${hxA}" fill="var(--up)">H: ${fmt(hi)}</text><text x="${(lx+lxO).toFixed(1)}" y="${Math.min(H-pb+12,ly+12).toFixed(1)}" font-size="10" font-weight="bold" text-anchor="${lxA}" fill="var(--dn)">L: ${fmt(lo)}</text>`;
+  const marks=`<circle cx="${hx}" cy="${hy}" r="4" fill="var(--up)" stroke="var(--card)" stroke-width="1.5"/><circle cx="${lx}" cy="${ly}" r="4" fill="var(--dn)" stroke="var(--card)" stroke-width="1.5"/>${hl}`;
+  return `<div class="card mc" data-m="${m}" title="Klik untuk detail"><h2>${tkp()}${MN[m]} ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2><div style="display:flex;gap:8px;font-size:12px;margin:0 0 4px"><span class="up">Highest: <b>${fmt(hi)}</b> <small>(${hiP.d} ${mo3})</small></span><span style="color:var(--mut)">·</span><span class="dn">Lowest: <b>${fmt(lo)}</b> <small>(${loP.d} ${mo3})</small></span></div><svg class="mch" data-m="${m}" data-pts="${P.map(p=>X(p.d).toFixed(1)+','+Y(p.c).toFixed(1)).join(';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Harga ${MN[m]} ${y}">${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8"/>${dots}${marks}<line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="3 3" visibility="hidden"/><circle class="xc" r="5" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg></div>`;
+}
+function ychart(YD,y){
+  if(!YD.length)return '';
+  const W=800,H=330,pl=62,pr=16,pt=20,pb=32,N=YD.length;
+  const hi=Math.max(...YD.map(p=>p.h)),lo=Math.min(...YD.map(p=>p.l));
+  const hiI=YD.findIndex(p=>p.h===hi),loI=YD.findIndex(p=>p.l===lo);
+  const a=YD[0].c,b=YD[N-1].c,ch=(b/a-1)*100,up=b>=a,col=up?'var(--up)':'var(--dn)';
+  let mn=lo,mx=hi;const pd=(mx-mn)*.1||mx*.01||1;mn-=pd;mx+=pd;
+  const X=i=>N===1?(W-pl-pr)/2+pl:pl+i/(N-1)*(W-pl-pr),Y=v=>pt+(1-(v-mn)/(mx-mn))*(H-pt-pb);
+  let g='';
+  for(let k=0;k<=4;k++){const v=mn+(mx-mn)*k/4,yy=Y(v);g+=`<line x1="${pl}" x2="${W-pr}" y1="${yy}" y2="${yy}" stroke="var(--bd)"/><text x="${pl-6}" y="${yy+4}" font-size="12" text-anchor="end" fill="var(--mut)">${fmt(cmp(v))}</text>`}
+  const mStart=Array(12).fill(-1);
+  YD.forEach((p,i)=>{if(mStart[p.m]<0)mStart[p.m]=i});
+  mStart.forEach((si,m)=>{if(si<0)return;const x=X(si);
+    g+=`<line x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}" stroke="var(--bd)" stroke-dasharray="2 4"/><text x="${x+3}" y="${H-10}" font-size="12" fill="var(--mut)">${MN[m].slice(0,3)}</text>`});
+  const pts=YD.map((p,i)=>X(i).toFixed(1)+','+Y(p.c).toFixed(1)).join(' ');
+  const hx=X(hiI),hy=Y(hi),lx=X(loI),ly=Y(lo);
+  const hxA=hx>W*0.72?'end':hx<W*0.28?'start':'middle',lxA=lx>W*0.72?'end':lx<W*0.28?'start':'middle';
+  return `<div class="card"><h2>${tkp()}Grafik harga setahun ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2>
+  <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:0 0 6px"><span class="up">Highest price: <b>${fmt(hi)}</b> <small>(${YD[hiI].d} ${MN[YD[hiI].m].slice(0,3)})</small></span><span class="dn">Lowest price: <b>${fmt(lo)}</b> <small>(${YD[loI].d} ${MN[YD[loI].m].slice(0,3)})</small></span><span style="color:var(--mut)">${fmt(a)} → ${fmt(b)} · ${N} hari bursa</span></div>
+  <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik harga setahun ${y}"><title>Harga ${y}</title>${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2"/>
+  <line x1="${hx}" x2="${hx}" y1="${hy}" y2="${H-pb}" stroke="var(--up)" stroke-dasharray="4 3" opacity=".6"/><circle cx="${hx}" cy="${hy}" r="6" fill="var(--up)" stroke="var(--card)" stroke-width="2"/><text x="${hx}" y="${Math.max(pt+2,hy-10)}" font-size="13" font-weight="bold" text-anchor="${hxA}" fill="var(--up)">H: ${fmt(hi)}</text>
+  <line x1="${lx}" x2="${lx}" y1="${ly}" y2="${H-pb}" stroke="var(--dn)" stroke-dasharray="4 3" opacity=".6"/><circle cx="${lx}" cy="${ly}" r="6" fill="var(--dn)" stroke="var(--card)" stroke-width="2"/><text x="${lx}" y="${Math.min(H-pb+14,ly+18)}" font-size="13" font-weight="bold" text-anchor="${lxA}" fill="var(--dn)">L: ${fmt(lo)}</text></svg>
+  <small>Garis ${up?'naik (hijau)':'turun (merah)'} = harga penutupan harian Jan–Des ${y}. Titik hijau = highest price setahun, titik merah = lowest price setahun.</small></div>`;
 }
 function trend(){
   const D=S.D,y=+$('#yr').value,M=Array.from({length:12},()=>[]);
   D.t.forEach((t,i)=>{const d=new Date(t);if(d.getUTCFullYear()===y)M[d.getUTCMonth()].push({d:d.getUTCDate(),c:D.c[i],h:D.h[i],l:D.l[i],v:D.v[i],pc:i?(D.c[i]/D.c[i-1]-1)*100:NaN})});
+  const YD=[];D.t.forEach((t,i)=>{const d=new Date(t);if(d.getUTCFullYear()===y)YD.push({d:d.getUTCDate(),m:d.getUTCMonth(),c:D.c[i],h:D.h[i],l:D.l[i]})});
   const all=M.flat();let h=`<h2 style="font-size:19px;margin:4px 0 10px">${tkp()}Tren harga ${y}</h2>`;
-  if(all.length){const a=all[0].c,b=all[all.length-1].c,ch=(b/a-1)*100,cs=all.map(x=>x.c);
-    h+=`<div class="card"><div class="grid"><div><div class="k">Pergerakan ${y}</div><div class="v ${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${fmt(ch)}%</div><small>${fmt(a)} → ${fmt(b)}</small></div><div><div class="k">Tertinggi (penutupan)</div><div class="v">${fmt(Math.max(...cs))}</div></div><div><div class="k">Terendah (penutupan)</div><div class="v">${fmt(Math.min(...cs))}</div></div><div><div class="k">Hari bursa</div><div class="v">${all.length}</div></div></div></div>`}
-  h+='<p class="msg" style="margin:0 0 8px">Klik salah satu bulan untuk melihat harga tertinggi, terendah, dan pergerakannya.</p><div class="mg">'+M.map((P,m)=>mchart(P,m,y)).join('')+'</div>';
+  if(all.length){const a=all[0].c,b=all[all.length-1].c,ch=(b/a-1)*100;
+    const yhi=Math.max(...YD.map(x=>x.h)),ylo=Math.min(...YD.map(x=>x.l));
+    const yhiP=YD.find(x=>x.h===yhi),yloP=YD.find(x=>x.l===ylo);
+    h+=`<div class="card"><div class="grid"><div><div class="k">Pergerakan ${y}</div><div class="v ${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${fmt(ch)}%</div><small>${fmt(a)} → ${fmt(b)}</small></div><div><div class="k">Highest price ${y}</div><div class="v up">${fmt(yhi)}</div><small>${yhiP.d} ${MN[yhiP.m].slice(0,3)}</small></div><div><div class="k">Lowest price ${y}</div><div class="v dn">${fmt(ylo)}</div><small>${yloP.d} ${MN[yloP.m].slice(0,3)}</small></div><div><div class="k">Hari bursa</div><div class="v">${all.length}</div></div></div></div>`}
+  h+=ychart(YD,y);
+  h+='<h3 style="font-size:15px;margin:14px 0 8px">Grafik per bulan — lengkap dengan Highest & Lowest price</h3><p class="msg" style="margin:0 0 8px">Setiap grafik bulanan sudah ditulisi Highest (hijau, H:) dan Lowest (merah, L:) beserta tanggalnya. Klik salah satu bulan untuk melihat harga tertinggi, terendah, dan pergerakannya.</p><div class="mg">'+M.map((P,m)=>mchart(P,m,y)).join('')+'</div>';
   $('#trend').innerHTML=h;S.M=M;S.y=y;hideTip();
   $('#trend').querySelectorAll('.mc').forEach(e=>e.onclick=()=>openMonth(+e.dataset.m));
 }
