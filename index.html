@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tren Harga Saham per Bulan</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://js.puter.com/v2/"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="w">
+  <h1>📈 Tren Harga Saham per Bulan</h1>
+  <p class="sub">Upload data historis saham (CSV / Excel), pilih tahun, lalu lihat grafik harga penutupan Januari–Desember, satu grafik per bulan. Semua proses berjalan di browser kamu.</p>
+
+  <div class="card">
+    <div id="drop">Tarik file ke sini atau klik untuk memilih<br><small>.csv / .xlsx / .xls — kolom: Tanggal, Terakhir, Pembukaan, Tertinggi, Terendah, Vol., Perubahan% (format Investing.com juga didukung)</small></div>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,.xlsx,.xls" hidden>
+    <div class="row">
+      <button class="g" id="demo">Coba data simulasi</button>
+      <label>Ticker / nama saham: <input id="tk" type="text" placeholder="mis. BBCA" maxlength="24"></label>
+      
+    </div>
+    <div id="msg" class="msg"></div>
+  </div>
+
+  <div id="info"></div>
+  <div id="yrbar" class="row" hidden><label><b>Tahun:</b> <select id="yr"></select></label></div>
+  <div id="trend" style="margin-top:12px"></div>
+
+  <details id="pred">
+    <summary><b>🔮 Fitur prediksi (eksperimen)</b> <small>— bandingkan 8 model ML untuk harga besok</small></summary>
+    <div class="row">
+      <label>Porsi data uji: <b id="spv">20%</b> <input id="sp" type="range" min="10" max="40" value="20" step="5"></label>
+      <label>Prediksi ke depan: <select id="hz"><option value="1">1 hari</option><option value="3">3 hari</option><option value="5" selected>5 hari</option><option value="10">10 hari</option></select></label>
+    </div>
+    <div id="out" style="margin-top:12px"></div>
+  </details>
+
+  <div class="warn" style="margin-top:14px">⚠️ Alat edukasi, bukan saran investasi. Harga saham mendekati random walk; model sederhana seperti ini jarang konsisten mengalahkan baseline “harga kemarin”. Skor tinggi di data uji tidak menjamin hasil di masa depan.</div>
+</div>
+
+<div id="modal" hidden></div>
+<script src="script.js"></script>
+</body>
+</html>
