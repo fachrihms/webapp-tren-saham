@@ -214,11 +214,12 @@ function mchart(P,m,y){
   const dots=P.map(p=>`<circle cx="${X(p.d)}" cy="${Y(p.c)}" r="2.6" fill="${col}"></circle>`).join('');
   const mo3=MN[m].slice(0,3);
   const hx=X(hiP.d),hy=Y(Math.min(Math.max(hiP.h,mn),mx)),lx=X(loP.d),ly=Y(Math.min(Math.max(loP.l,mn),mx));
-  const hxA=hx>(pl+W-pr)/2?'end':'start',lxA=lx>(pl+W-pr)/2?'end':'start';
-  const hxO=hxA==='end'?-7:7,lxO=lxA==='end'?-7:7;
-  const hl=`<text x="${(hx+hxO).toFixed(1)}" y="${Math.max(pt+9,hy-6).toFixed(1)}" font-size="10" font-weight="bold" text-anchor="${hxA}" fill="var(--up)">H: ${fmt(hi)}</text><text x="${(lx+lxO).toFixed(1)}" y="${Math.min(H-pb+12,ly+12).toFixed(1)}" font-size="10" font-weight="bold" text-anchor="${lxA}" fill="var(--dn)">L: ${fmt(lo)}</text>`;
+  const hyT=hy<pt+18?hy+15:Math.max(pt+10,hy-8);
+  const lyT=ly>H-pb-18?ly-9:Math.min(H-pb+2,ly+15);
+  const halo='paint-order:stroke;stroke:var(--card);stroke-width:3px;stroke-linejoin:round';
+  const hl=`<text x="${hx.toFixed(1)}" y="${hyT.toFixed(1)}" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--up)" style="${halo}">H: ${fmt(hi)}</text><text x="${lx.toFixed(1)}" y="${lyT.toFixed(1)}" font-size="10" font-weight="bold" text-anchor="middle" fill="var(--dn)" style="${halo}">L: ${fmt(lo)}</text>`;
   const marks=`<circle cx="${hx}" cy="${hy}" r="4" fill="var(--up)" stroke="var(--card)" stroke-width="1.5"/><circle cx="${lx}" cy="${ly}" r="4" fill="var(--dn)" stroke="var(--card)" stroke-width="1.5"/>${hl}`;
-  return `<div class="card mc" data-m="${m}" title="Klik untuk detail"><h2>${tkp()}${MN[m]} ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2><div style="display:flex;gap:8px;font-size:12px;margin:0 0 4px"><span class="up">Highest: <b>${fmt(hi)}</b> <small>(${hiP.d} ${mo3})</small></span><span style="color:var(--mut)">·</span><span class="dn">Lowest: <b>${fmt(lo)}</b> <small>(${loP.d} ${mo3})</small></span></div><svg class="mch" data-m="${m}" data-pts="${P.map(p=>X(p.d).toFixed(1)+','+Y(p.c).toFixed(1)).join(';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Harga ${MN[m]} ${y}">${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8"/>${dots}${marks}<line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="3 3" visibility="hidden"/><circle class="xc" r="5" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg></div>`;
+  return `<div class="card mc" data-m="${m}" title="Klik untuk detail"><h2>${tkp()}${MN[m]} ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2><div style="display:flex;gap:8px;font-size:12px;margin:0 0 4px"><span class="up">Highest: <b>${fmt(hi)}</b> <small>(${hiP.d} ${mo3})</small></span><span style="color:var(--mut)">·</span><span class="dn">Lowest: <b>${fmt(lo)}</b> <small>(${loP.d} ${mo3})</small></span></div><svg class="mch" data-m="${m}" data-w="${W}" data-pts="${P.map(p=>X(p.d).toFixed(1)+','+Y(p.c).toFixed(1)).join(';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Harga ${MN[m]} ${y}">${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="1.8"/>${dots}${marks}<line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="3 3" visibility="hidden"/><circle class="xc" r="5" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg></div>`;
 }
 function ychart(YD,y){
   if(!YD.length)return '';
@@ -236,12 +237,14 @@ function ychart(YD,y){
     g+=`<line x1="${x}" x2="${x}" y1="${pt}" y2="${H-pb}" stroke="var(--bd)" stroke-dasharray="2 4"/><text x="${x+3}" y="${H-10}" font-size="12" fill="var(--mut)">${MN[m].slice(0,3)}</text>`});
   const pts=YD.map((p,i)=>X(i).toFixed(1)+','+Y(p.c).toFixed(1)).join(' ');
   const hx=X(hiI),hy=Y(hi),lx=X(loI),ly=Y(lo);
-  const hxA=hx>W*0.72?'end':hx<W*0.28?'start':'middle',lxA=lx>W*0.72?'end':lx<W*0.28?'start':'middle';
+  const halo='paint-order:stroke;stroke:var(--card);stroke-width:4px;stroke-linejoin:round';
+  const hyT=hy<pt+22?hy+18:hy-10, lyT=ly>H-pb-24?ly-10:ly+19;
   return `<div class="card"><h2>${tkp()}Grafik harga setahun ${y} <small class="${up?'up':'dn'}">${up?'▲':'▼'} ${fmt(ch)}%</small></h2>
   <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:13px;margin:0 0 6px"><span class="up">Highest price: <b>${fmt(hi)}</b> <small>(${YD[hiI].d} ${MN[YD[hiI].m].slice(0,3)})</small></span><span class="dn">Lowest price: <b>${fmt(lo)}</b> <small>(${YD[loI].d} ${MN[YD[loI].m].slice(0,3)})</small></span><span style="color:var(--mut)">${fmt(a)} → ${fmt(b)} · ${N} hari bursa</span></div>
-  <svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik harga setahun ${y}"><title>Harga ${y}</title>${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2"/>
-  <line x1="${hx}" x2="${hx}" y1="${hy}" y2="${H-pb}" stroke="var(--up)" stroke-dasharray="4 3" opacity=".6"/><circle cx="${hx}" cy="${hy}" r="6" fill="var(--up)" stroke="var(--card)" stroke-width="2"/><text x="${hx}" y="${Math.max(pt+2,hy-10)}" font-size="13" font-weight="bold" text-anchor="${hxA}" fill="var(--up)">H: ${fmt(hi)}</text>
-  <line x1="${lx}" x2="${lx}" y1="${ly}" y2="${H-pb}" stroke="var(--dn)" stroke-dasharray="4 3" opacity=".6"/><circle cx="${lx}" cy="${ly}" r="6" fill="var(--dn)" stroke="var(--card)" stroke-width="2"/><text x="${lx}" y="${Math.min(H-pb+14,ly+18)}" font-size="13" font-weight="bold" text-anchor="${lxA}" fill="var(--dn)">L: ${fmt(lo)}</text></svg>
+  <p class="msg" style="margin:0 0 6px">Arahkan kursor / sentuh garis untuk melihat harga per hari.</p>
+  <svg class="ych" data-w="${W}" data-pts="${pts.replaceAll(' ',';')}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Grafik harga setahun ${y}"><title>Harga ${y}</title>${g}<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2"/>
+  <circle cx="${hx}" cy="${hy}" r="6" fill="var(--up)" stroke="var(--card)" stroke-width="2"/><text x="${hx}" y="${hyT}" font-size="13" font-weight="bold" text-anchor="middle" fill="var(--up)" style="${halo}">H: ${fmt(hi)}</text>
+  <circle cx="${lx}" cy="${ly}" r="6" fill="var(--dn)" stroke="var(--card)" stroke-width="2"/><text x="${lx}" y="${lyT}" font-size="13" font-weight="bold" text-anchor="middle" fill="var(--dn)" style="${halo}">L: ${fmt(lo)}</text><line class="xl" y1="${pt}" y2="${H-pb}" stroke="var(--mut)" stroke-dasharray="4 3" visibility="hidden"/><circle class="xc" r="6" fill="${col}" stroke="var(--card)" stroke-width="2" visibility="hidden"/><rect x="0" y="0" width="${W}" height="${H}" fill="transparent"/></svg>
   <small>Garis ${up?'naik (hijau)':'turun (merah)'} = harga penutupan harian Jan–Des ${y}. Titik hijau = highest price setahun, titik merah = lowest price setahun.</small></div>`;
 }
 function trend(){
@@ -255,7 +258,7 @@ function trend(){
     h+=`<div class="card"><div class="grid"><div><div class="k">Pergerakan ${y}</div><div class="v ${ch>=0?'up':'dn'}">${ch>=0?'▲':'▼'} ${fmt(ch)}%</div><small>${fmt(a)} → ${fmt(b)}</small></div><div><div class="k">Highest price ${y}</div><div class="v up">${fmt(yhi)}</div><small>${yhiP.d} ${MN[yhiP.m].slice(0,3)}</small></div><div><div class="k">Lowest price ${y}</div><div class="v dn">${fmt(ylo)}</div><small>${yloP.d} ${MN[yloP.m].slice(0,3)}</small></div><div><div class="k">Hari bursa</div><div class="v">${all.length}</div></div></div></div>`}
   h+=ychart(YD,y);
   h+='<h3 style="font-size:15px;margin:14px 0 8px">Grafik per bulan — lengkap dengan Highest & Lowest price</h3><p class="msg" style="margin:0 0 8px">Setiap grafik bulanan sudah ditulisi Highest (hijau, H:) dan Lowest (merah, L:) beserta tanggalnya. Klik salah satu bulan untuk melihat harga tertinggi, terendah, dan pergerakannya.</p><div class="mg">'+M.map((P,m)=>mchart(P,m,y)).join('')+'</div>';
-  $('#trend').innerHTML=h;S.M=M;S.y=y;hideTip();
+  $('#trend').innerHTML=h;S.M=M;S.YD=YD;S.y=y;hideTip();
   $('#trend').querySelectorAll('.mc').forEach(e=>e.onclick=()=>openMonth(+e.dataset.m));
 }
 function openMonth(m){
@@ -279,15 +282,24 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM()});
 const tip=document.createElement('div');tip.id='tip';document.body.appendChild(tip);
 function hideTip(){tip.style.display='none';document.querySelectorAll('.xl,.xc').forEach(e=>e.setAttribute('visibility','hidden'))}
 function hv(e){
-  const svg=e.target.closest&&e.target.closest('svg.mch');
+  const svg=e.target.closest&&e.target.closest('svg.mch,svg.ych');
   if(!svg){hideTip();return}
-  const m=+svg.dataset.m,P=S.M[m],pts=svg.dataset.pts.split(';').map(q=>q.split(',').map(Number));
-  const r=svg.getBoundingClientRect(),cx=(e.clientX-r.left)/r.width*300;
+  const W=+(svg.dataset.w||300);
+  const pts=svg.dataset.pts.split(';').map(q=>q.split(',').map(Number));
+  const r=svg.getBoundingClientRect(),cx=(e.clientX-r.left)/r.width*W;
   let k=0;for(let i=1;i<pts.length;i++)if(Math.abs(pts[i][0]-cx)<Math.abs(pts[k][0]-cx))k=i;
-  const p=P[k],xl=svg.querySelector('.xl'),xc=svg.querySelector('.xc');
+  const xl=svg.querySelector('.xl'),xc=svg.querySelector('.xc');
   xl.setAttribute('x1',pts[k][0]);xl.setAttribute('x2',pts[k][0]);xc.setAttribute('cx',pts[k][0]);xc.setAttribute('cy',pts[k][1]);
   xl.setAttribute('visibility','visible');xc.setAttribute('visibility','visible');
-  tip.innerHTML=`<b>${tkp()}${p.d} ${MN[m]} ${S.y}</b><br>Penutupan: ${fmt(p.c)}${isFinite(p.pc)?` <span class="${p.pc>=0?'up':'dn'}">(${p.pc>=0?'+':''}${fmt(p.pc)}%)</span>`:''}<br><small>Tertinggi ${fmt(p.h)} · Terendah ${fmt(p.l)}</small>`;
+  if(svg.classList.contains('ych')){
+    const p=(S.YD||[])[k];if(!p){hideTip();return}
+    xc.setAttribute('fill',p.c>=(S.YD[Math.max(0,k-1)]||p).c?'var(--up)':'var(--dn)');
+    tip.innerHTML=`<b>${tkp()}${p.d} ${MN[p.m]} ${S.y}</b><br>Penutupan: ${fmt(p.c)}<br><small>Tertinggi ${fmt(p.h)} · Terendah ${fmt(p.l)}</small>`;
+  }else{
+    const m=+svg.dataset.m,P=S.M[m],p=P[k];
+    const col=p.c>=(P[Math.max(0,k-1)]||p).c?'var(--up)':'var(--dn)';xc.setAttribute('fill',col);
+    tip.innerHTML=`<b>${tkp()}${p.d} ${MN[m]} ${S.y}</b><br>Penutupan: ${fmt(p.c)}${isFinite(p.pc)?` <span class="${p.pc>=0?'up':'dn'}">(${p.pc>=0?'+':''}${fmt(p.pc)}%)</span>`:''}<br><small>Tertinggi ${fmt(p.h)} · Terendah ${fmt(p.l)}</small>`;
+  }
   tip.style.display='block';
   const tw=tip.offsetWidth,th=tip.offsetHeight;let x=e.clientX+14,y=e.clientY-th-12;
   if(x+tw>innerWidth-8)x=e.clientX-tw-14;if(y<8)y=e.clientY+16;
